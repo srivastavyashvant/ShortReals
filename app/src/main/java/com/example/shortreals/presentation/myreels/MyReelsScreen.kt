@@ -7,8 +7,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -22,7 +22,7 @@ fun MyReelsScreen(
     viewModel: MyReelsViewModel = hiltViewModel(),
     sharedPlayerViewModel: ReelsViewModel = hiltViewModel()
 ) {
-    val downloadedVideos by viewModel.downloadedVideos.collectAsState()
+    val downloadedVideos by viewModel.downloadedVideos.collectAsStateWithLifecycle(initialValue = emptyList())
 
     if (downloadedVideos.isEmpty()) {
         EmptyStateComposable(

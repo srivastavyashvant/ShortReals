@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -37,7 +38,7 @@ fun ReelsScreen(
     val workManager = remember { WorkManager.getInstance(context) }
     
     // Observe downloaded videos to update UI
-    val downloadedVideos by viewModel.downloadedVideos.collectAsState(initial = emptyList())
+    val downloadedVideos by viewModel.downloadedVideos.collectAsStateWithLifecycle(initialValue = emptyList())
     val downloadedIds = remember(downloadedVideos) { downloadedVideos.map { it.id }.toSet() }
 
     // Handle ViewModel events (Toasts)

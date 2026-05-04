@@ -13,8 +13,8 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,7 +41,7 @@ import androidx.compose.material3.Icon
 fun MainScreen(
     connectivityObserver: ConnectivityObserver
 ) {
-    val isOnline by connectivityObserver.isConnected.collectAsState(initial = true)
+    val isOnline by connectivityObserver.isConnected.collectAsStateWithLifecycle(initialValue = true)
     val pagerState = rememberPagerState(pageCount = { 2 })
     val coroutineScope = rememberCoroutineScope()
 
