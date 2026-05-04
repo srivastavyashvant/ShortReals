@@ -39,7 +39,8 @@ import androidx.compose.material3.Icon
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    connectivityObserver: ConnectivityObserver
+    connectivityObserver: ConnectivityObserver,
+    isInPipMode: Boolean = false
 ) {
     val isOnline by connectivityObserver.isConnected.collectAsStateWithLifecycle(initialValue = true)
     val pagerState = rememberPagerState(pageCount = { 2 })
@@ -47,75 +48,85 @@ fun MainScreen(
 
     val tabs = listOf("🔥 Reels", "📁 My Reels")
 
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = "Logo",
-                            tint = Color(0xFF8B5CF6)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "ShortReels",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.ExtraBold,
-                                color = Color.White
+    if (isInPipMode) {
+        // In PIP mode, only show the active screen content without any decorations
+        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            when (pagerState.currentPage) {
+                0 -> ReelsScreen(isInPipMode = true)
+                1 -> MyReelsScreen(isInPipMode = true)
+            }
+        }
+    } else {
+        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                
+                TopAppBar(
+                    title = {
+                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = "Logo",
+                                tint = Color(0xFF8B5CF6)
                             )
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Black.copy(alpha = 0.8f)
-                )
-            )
-
-            TabRow(
-                selectedTabIndex = pagerState.currentPage,
-                containerColor = Color.Black.copy(alpha = 0.8f),
-                contentColor = Color.White,
-                indicator = { tabPositions ->
-                    if (pagerState.currentPage < tabPositions.size) {
-                        TabRowDefaults.Indicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                            color = Color(0xFF8B5CF6),
-                            height = 3.dp
-                        )
-                    }
-                }
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(index)
-                            }
-                        },
-                        text = {
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = title,
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = if (pagerState.currentPage == index) FontWeight.Bold else FontWeight.Medium
+                                text = "ShortReels",
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color.White
                                 )
                             )
                         }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Black.copy(alpha = 0.8f)
                     )
-                }
-            }
-            
-            NetworkStatusBanner(isOffline = !isOnline)
+                )
 
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { page ->
-                when (page) {
-                    0 -> ReelsScreen()
-                    1 -> MyReelsScreen()
+                TabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    containerColor = Color.Black.copy(alpha = 0.8f),
+                    contentColor = Color.White,
+                    indicator = { tabPositions ->
+                        if (pagerState.currentPage < tabPositions.size) {
+                            TabRowDefaults.Indicator(
+                                modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                                color = Color(0xFF8B5CF6),
+                                height = 3.dp
+                            )
+                        }
+                    }
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = pagerState.currentPage == index,
+                            onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            },
+                            text = {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = if (pagerState.currentPage == index) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+                
+                NetworkStatusBanner(isOffline = !isOnline)
+
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    when (page) {
+                        0 -> ReelsScreen()
+                        1 -> MyReelsScreen()
+                    }
                 }
             }
         }

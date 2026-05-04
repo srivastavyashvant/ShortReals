@@ -31,7 +31,8 @@ import com.example.shortreals.presentation.components.VideoPlayerComposable
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReelsScreen(
-    viewModel: ReelsViewModel = hiltViewModel()
+    viewModel: ReelsViewModel = hiltViewModel(),
+    isInPipMode: Boolean = false
 ) {
     val videos: LazyPagingItems<Video> = viewModel.videos.collectAsLazyPagingItems()
     val context = LocalContext.current
@@ -89,10 +90,12 @@ fun ReelsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Reels", color = Color.White) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
-            )
+            if (!isInPipMode) {
+                TopAppBar(
+                    title = { Text("Reels", color = Color.White) },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
+                )
+            }
         },
         containerColor = Color.Black
     ) { innerPadding ->
@@ -115,27 +118,29 @@ fun ReelsScreen(
                             modifier = Modifier.fillMaxSize()
                         )
                         
-                        // Download Button Overlay - Added zIndex and ensured it's above the player
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(bottom = 120.dp, end = 24.dp)
-                                .zIndex(1f)
-                        ) {
-                            IconButton(
-                                onClick = { 
-                                    viewModel.downloadVideo(video)
-                                },
+                        // Download Button Overlay - Hidden in PIP
+                        if (!isInPipMode) {
+                            Box(
                                 modifier = Modifier
-                                    .size(64.dp)
-                                    .background(Color.Black.copy(alpha = 0.6f), androidx.compose.foundation.shape.CircleShape)
+                                    .align(Alignment.BottomEnd)
+                                    .padding(bottom = 120.dp, end = 24.dp)
+                                    .zIndex(1f)
                             ) {
-                                Icon(
-                                    imageVector = if (isDownloaded) Icons.Default.CheckCircle else Icons.Default.Download,
-                                    contentDescription = "Download",
-                                    tint = if (isDownloaded) Color.Green else Color.White,
-                                    modifier = Modifier.size(36.dp)
-                                )
+                                IconButton(
+                                    onClick = { 
+                                        viewModel.downloadVideo(video)
+                                    },
+                                    modifier = Modifier
+                                        .size(64.dp)
+                                        .background(Color.Black.copy(alpha = 0.6f), androidx.compose.foundation.shape.CircleShape)
+                                ) {
+                                    Icon(
+                                        imageVector = if (isDownloaded) Icons.Default.CheckCircle else Icons.Default.Download,
+                                        contentDescription = "Download",
+                                        tint = if (isDownloaded) Color.Green else Color.White,
+                                        modifier = Modifier.size(36.dp)
+                                    )
+                                }
                             }
                         }
                     } else {

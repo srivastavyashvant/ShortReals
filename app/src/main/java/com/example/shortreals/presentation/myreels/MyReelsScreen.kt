@@ -20,7 +20,8 @@ import com.example.shortreals.presentation.reels.ReelsViewModel
 @Composable
 fun MyReelsScreen(
     viewModel: MyReelsViewModel = hiltViewModel(),
-    sharedPlayerViewModel: ReelsViewModel = hiltViewModel()
+    sharedPlayerViewModel: ReelsViewModel = hiltViewModel(),
+    isInPipMode: Boolean = false
 ) {
     val downloadedVideos by viewModel.downloadedVideos.collectAsStateWithLifecycle(initialValue = emptyList())
 

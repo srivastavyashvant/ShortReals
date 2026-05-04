@@ -6,6 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import com.example.shortreals.presentation.MainScreen
 import com.example.shortreals.ui.theme.ShortRealsTheme
 import com.example.shortreals.util.NetworkConnectivityObserver
@@ -13,6 +16,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private var isInPipMode by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,7 +28,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ShortRealsTheme {
-                MainScreen(connectivityObserver = connectivityObserver)
+                MainScreen(
+                    connectivityObserver = connectivityObserver,
+                    isInPipMode = isInPipMode
+                )
             }
         }
     }
@@ -43,5 +51,6 @@ class MainActivity : ComponentActivity() {
         newConfig: Configuration
     ) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        isInPipMode = isInPictureInPictureMode
     }
 }
