@@ -60,17 +60,34 @@ fun VideoPlayerComposable(
             modifier = Modifier.fillMaxSize()
         )
         
-        DisposableEffect(Unit) {
-            val listener = object : androidx.media3.common.Player.Listener {
+        val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+        
+        DisposableEffect(lifecycleOwner) {
+            val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                when (event) {
+                    androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> {
+                        exoPlayer.pause()
+                    }
+                    androidx.lifecycle.Lifecycle.Event.ON_RESUME -> {
+                        exoPlayer.play()
+                    }
+                    else -> {}
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            
+            val playerListener = object : androidx.media3.common.Player.Listener {
                 override fun onPlaybackStateChanged(playbackState: Int) {
                     if (playbackState == androidx.media3.common.Player.STATE_READY) {
                         isPlayerReady = true
                     }
                 }
             }
-            exoPlayer.addListener(listener)
+            exoPlayer.addListener(playerListener)
+            
             onDispose {
-                exoPlayer.removeListener(listener)
+                lifecycleOwner.lifecycle.removeObserver(observer)
+                exoPlayer.removeListener(playerListener)
             }
         }
     }

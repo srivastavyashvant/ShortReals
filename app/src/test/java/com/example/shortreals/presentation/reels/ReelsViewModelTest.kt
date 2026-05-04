@@ -19,12 +19,15 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
+import com.example.shortreals.domain.usecase.GetDownloadedVideosUseCase
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class ReelsViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     
     private lateinit var getVideosUseCase: GetVideosUseCase
+    private lateinit var getDownloadedVideosUseCase: GetDownloadedVideosUseCase
     private lateinit var downloadVideoUseCase: DownloadVideoUseCase
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var workManager: WorkManager
@@ -34,15 +37,22 @@ class ReelsViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         getVideosUseCase = mock()
+        getDownloadedVideosUseCase = mock()
         downloadVideoUseCase = mock()
         exoPlayer = mock()
         workManager = mock()
         
         whenever(getVideosUseCase.invoke()).thenReturn(emptyFlow())
+        whenever(getDownloadedVideosUseCase.invoke()).thenReturn(emptyFlow())
         whenever(workManager.getWorkInfosByTagFlow("download")).thenReturn(emptyFlow())
+        // Mock getWorkInfosByTag().get() for init block
+        val mockFuture: com.google.common.util.concurrent.ListenableFuture<List<androidx.work.WorkInfo>> = mock()
+        whenever(workManager.getWorkInfosByTag("download")).thenReturn(mockFuture)
+        whenever(mockFuture.get()).thenReturn(emptyList())
 
         viewModel = ReelsViewModel(
             getVideosUseCase,
+            getDownloadedVideosUseCase,
             downloadVideoUseCase,
             exoPlayer,
             workManager
